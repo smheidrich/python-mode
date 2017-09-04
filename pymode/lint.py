@@ -25,7 +25,6 @@ def code_check():  # noqa
 
         from pylama.core import run
         from pylama.main import parse_options
-        from pylama.config import _override_options
 
         if not env.curbuf.name:
             return env.stop()
@@ -34,17 +33,14 @@ def code_check():  # noqa
             force=1,
             ignore=env.var('g:pymode_lint_ignore'),
             select=env.var('g:pymode_lint_select'),
+            linters=env.var('g:pymode_lint_checkers', default=[])
         )
 
-        linters = env.var('g:pymode_lint_checkers', default=[])
-        if linters:
-            _override_options(options, linters=",".join(linters))
-
-            for linter in dict(options.linters):
-                opts = env.var('g:pymode_lint_options_%s' % linter, silence=True)
-                if opts:
-                    options.linters_params[linter] = options.linters_params.get(linter, {})
-                    options.linters_params[linter].update(opts)
+        for linter in dict(options.linters):
+            opts = env.var('g:pymode_lint_options_%s' % linter, silence=True)
+            if opts:
+                options.linters_params[linter] = options.linters_params.get(linter, {})
+                options.linters_params[linter].update(opts)
 
         if 'pylint' in options.linters_params:
             options.linters_params['pylint']['clear_cache'] = True
